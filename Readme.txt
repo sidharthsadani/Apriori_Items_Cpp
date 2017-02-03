@@ -5,3 +5,8 @@ Acceptable Parameter Values
 Minimum Support - in number of items (as opposed to probability)
 
 Requirements :
+
+Try :
+
+Break it up for x>n use dirty code
+for x<n use efficient code
