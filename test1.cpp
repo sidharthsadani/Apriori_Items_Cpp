@@ -8,8 +8,13 @@
 
 //Compilation command g++ -pipe -O2 -std=c++14 <filename > -lm
 
-//Function Definitions
+// // Function Definitions
 std::vector<std::string> parseLine(std::string);
+// Write Output To File
+// TODO: Enforce pass by reference
+void writeToFile(std::string, std::map<std::string, int> &, int);
+// Get Frequent Sets
+std::map<std::string, int> getFreqSets(std::map<std::string, int> &, int);
 
 int main(int argc, char const *argv[]){
   std::cout<<"Hello World"<<std::endl;
@@ -50,12 +55,10 @@ int main(int argc, char const *argv[]){
         }
         else{
           keys[key]++;
-        }
-        //keys[key] ++;
+        } 
         num_tokens++;
         Items.pop_back();
       }
-      // std::cout << '\n'<<'\n';
       count++;
       if (count==-1) {
         break;
@@ -68,65 +71,19 @@ int main(int argc, char const *argv[]){
   }
   clock_t te = clock();
   float et = (te-tb)/(float)CLOCKS_PER_SEC;
-  //double et = te-tb;
   std::cout << "Time Elapsed In Reading and Parsing File: "<< et << '\n';
   std::cout << "Num of Lines: "<< num_lines << '\n';
   std::cout << "Num of Tokens: "<< num_tokens << '\n';
-//  std::cout << "Clocks Per Sec: "<< CLOCKS_PER_SEC << '\n';
 
-/*
-  // Displaying Counts
-  tb = clock();
-  int sum = 0;
-  int key_ctr = 0;
-  std::map<std::string, int>::iterator it = keys.begin();
-  while (it != keys.end()) {
-    key_ctr = key_ctr + 1;
-    sum += it->second;
-    if (it->second>=min_sup) {
-      std::cout << it->first<<" : "<<it->second << '\n';
-    }
-    it++;
-  }
-  te = clock();
-  et = (te-tb)/(float)CLOCKS_PER_SEC;
-  std::cout << "Time Elapsed In Iteration Through Map: "<< et << '\n';
-  std::cout << "Sum of Cts: "<< sum << '\n';
-  std::cout << "Num Keys: "<< key_ctr << '\n';
-*/
-
-
-  // WRITE TO OUTPUT FILE
-  std::ofstream ofile(outF, std::ios::out /*| std::ios::app*/);
-  if (ofile.is_open()) {
-
-    tb = clock();
-    int sum = 0;
-    int key_ctr = 0;
-    std::map<std::string, int>::iterator it = keys.begin();
-    while (it != keys.end()) {
-      key_ctr = key_ctr + 1;
-      sum += it->second;
-      if (it->second>=min_sup) {
-        //std::cout << it->first<<" : "<<it->second << '\n';
-        ofile << it->first <<" (" << it->second << ")" << '\n';
-      }
-      it++;
-    }
-    te = clock();
-    et = (te-tb)/(float)CLOCKS_PER_SEC;
-    std::cout << "Time Elapsed In Iteration Through Map: "<< et << '\n';
-    std::cout << "Sum of Cts: "<< sum << '\n';
-    std::cout << "Num Keys: "<< key_ctr << '\n';
-
-  //  ofile << "This is a line.\n";
-
-    ofile.close();
-  }
+  // std::cout << "Clocks Per Sec: "<< CLOCKS_PER_SEC << '\n';
+  std::map<std::string, int> freqSet = getFreqSets(keys, min_sup);
+  // Write To File
+  writeToFile(outF, freqSet, min_sup);
   return 0;
 }
 
 
+// PARSE EACH LINE OF FILE
 std::vector<std::string> parseLine(std::string line){
   std::vector<std::string> Items;
 
@@ -148,3 +105,69 @@ std::vector<std::string> parseLine(std::string line){
 
   return Items;
 }
+
+// WRITE OUTPUT TO FILE
+void writeToFile(std::string outF, std::map<std::string, int> &keys, int min_sup){
+	// std::cout<<"Hello World";
+
+  	std::ofstream ofile(outF, std::ios::out /*| std::ios::app*/);
+    if (ofile.is_open()) {
+	
+  	clock_t tb = clock();
+    	int sum = 0;
+    	int key_ctr = 0;
+    	std::map<std::string, int>::iterator it = keys.begin();
+    	while (it != keys.end()) {
+    	  key_ctr = key_ctr + 1;
+    	  sum += it->second;
+    	  if (it->second>=min_sup) {
+    	    //std::cout << it->first<<" : "<<it->second << '\n';
+    	    ofile << it->first <<" (" << it->second << ")" << '\n';
+    	  }
+    	  it++;
+    	}
+    	clock_t te = clock();
+    	float et = (te-tb)/(float)CLOCKS_PER_SEC;
+    	std::cout << "Time Elapsed In Iteration Through Map: "<< et << '\n';
+    	std::cout << "Sum of Cts: "<< sum << '\n';
+    	std::cout << "Num Keys: "<< key_ctr << '\n';
+
+  	//  ofile << "This is a line.\n";
+    	ofile.close();
+    }
+}
+
+// OUT OF ALL ITEMS, GET FREQUENT ITEMS
+std::map<std::string, int> getFreqSets(std::map<std::string ,int> &keys, int min_sup){
+	std::map<std::string, int> freqSet;
+	std::map<std::string, int>::iterator it = keys.begin();
+	while(it != keys.end()){
+		if(it->second > min_sup){
+			freqSet.insert(std::make_pair(it->first, it->second));
+		}
+		it++;
+	}
+	return freqSet;
+			
+}
+
+/*
+  // Displaying Counts
+  tb = clock();
+  int sum = 0;
+  int key_ctr = 0;
+  std::map<std::string, int>::iterator it = keys.begin();
+  while (it != keys.end()) {
+    key_ctr = key_ctr + 1;
+    sum += it->second;
+    if (it->second>=min_sup) {
+      std::cout << it->first<<" : "<<it->second << '\n';
+    }
+    it++;
+  }
+  te = clock();
+  et = (te-tb)/(float)CLOCKS_PER_SEC;
+  std::cout << "Time Elapsed In Iteration Through Map: "<< et << '\n';
+  std::cout << "Sum of Cts: "<< sum << '\n';
+  std::cout << "Num Keys: "<< key_ctr << '\n';
+*/
