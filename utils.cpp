@@ -3,7 +3,7 @@
 #include <map>
 #include <iostream>
 #include <fstream>
-
+#include "trie.h"
 
 // PARSE EACH LINE OF FILE
 std::vector<std::string> parseLine(std::string line){
@@ -145,3 +145,6 @@ std::map<std::string, int> getFreqSets(std::map<std::string ,int> &keys, int min
 	return freqSet;
 
 }
+
+///////////////////////////
+// Move the below stuff to Apriori

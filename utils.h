@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "trie.h"
 
 // Parse Each Line of File
 std::vector<std::string> parseLine(std::string line);
@@ -18,6 +19,9 @@ void writeToFile(std::string outF, std::map<std::string, int> &keys, int min_sup
 
 // Get Frequent Sets
 std::map<std::string, int> getFreqSets(std::map<std::string, int> &, int);
+
+//Insert first Gen Candidates into rootTrie
+// void
 
 #endif
 
