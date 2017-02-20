@@ -1,86 +1,8 @@
+#include <string>
+#include <vector>
+#include <map>
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <cmath>
-#include <map>
-#include <vector>
-#include <ctime>
-
-//Compilation command g++ -pipe -O2 -std=c++14 <filename > -lm
-
-// // Function Definitions
-std::vector<std::string> parseLine(std::string);
-// Write Output To File
-// TODO: Enforce pass by reference
-void writeToFile(std::string, std::map<std::string, int> &, int);
-// Get Frequent Sets
-std::map<std::string, int> getFreqSets(std::map<std::string, int> &, int);
-
-int main(int argc, char const *argv[]){
-  std::cout<<"Hello World"<<std::endl;
-  if (argc!=5) {
-    std::cout << "Insufficient Arguements" << '\n';
-    return 0;
-  }
-  // Parse Input Parameters
-  int min_sup = std::stoi(argv[1]);
-  int k = std::stoi(argv[2]);
-  std::string inF = argv[3];
-  std::string outF = argv[4];
-
-  std::map<std::string, int> keys;
-  //READ INPUT FILE
-  //std::ifstream afile("filename.txt", std::ios::in);
-  std::ifstream ifile(inF, std::ios::in);
-  int count = 0;
-  int num_lines=0;
-  int num_tokens=0;
-
-  clock_t tb = clock();
-
-  if (ifile.is_open()) {
-    std::string line;
-    while (std::getline(ifile, line)) {
-      // std::cout << line << '\n';
-      num_lines++;
-      std::vector<std::string> Items;
-      Items = parseLine(line);
-      while (!Items.empty()) {
-        std::string key = Items.back();
-        // std::cout << "Item: " <<key<<" ";
-
-        if (keys.find(key) == keys.end()) {
-          keys.insert(std::make_pair(key,1));
-          //std::cout << "Doing This" << '\n';
-        }
-        else{
-          keys[key]++;
-        } 
-        num_tokens++;
-        Items.pop_back();
-      }
-      count++;
-      if (count==-1) {
-        break;
-      }
-    }
-    ifile.close();
-  }
-  else {
-    std::cerr << "Unable to open file\n";
-  }
-  clock_t te = clock();
-  float et = (te-tb)/(float)CLOCKS_PER_SEC;
-  std::cout << "Time Elapsed In Reading and Parsing File: "<< et << '\n';
-  std::cout << "Num of Lines: "<< num_lines << '\n';
-  std::cout << "Num of Tokens: "<< num_tokens << '\n';
-
-  // std::cout << "Clocks Per Sec: "<< CLOCKS_PER_SEC << '\n';
-  std::map<std::string, int> freqSet = getFreqSets(keys, min_sup);
-  // Write To File
-  writeToFile(outF, freqSet, min_sup);
-  return 0;
-}
 
 
 // PARSE EACH LINE OF FILE
@@ -106,13 +28,86 @@ std::vector<std::string> parseLine(std::string line){
   return Items;
 }
 
-// WRITE OUTPUT TO FILE
+// READ FILE FIRST TIME
+std::map<std::string, int> readFileFirst(std::string inF, int k){
+  std::map<std::string, int> keys;
+  std::map<int, int> distr;
+
+  std::ifstream ifile(inF, std::ios::in);
+  int count = 0;
+  int num_lines=0;
+  int num_tokens=0;
+
+  clock_t tb = clock();
+
+  if (ifile.is_open()) {
+    std::string line;
+    while (std::getline(ifile, line)) {
+      // std::cout << line << '\n';
+      num_lines++;
+      std::vector<std::string> Items;
+      Items = parseLine(line);
+
+      int no_items = Items.size();
+
+      if(no_items<k){
+        continue;
+      }
+
+      try{
+        int x = distr.at(no_items);
+        distr[no_items]++;
+      }
+      catch(...){
+        distr.insert(std::make_pair(no_items,1));
+      }
+
+      while (!Items.empty()) {
+        std::string key = Items.back();
+        // std::cout << "Item: " <<key<<" ";
+
+        if (keys.find(key) == keys.end()) {
+          keys.insert(std::make_pair(key,1));
+          //std::cout << "Doing This" << '\n';
+        }
+        else{
+          keys[key]++;
+        }
+        num_tokens++;
+        Items.pop_back();
+      }
+      count++;
+      if (count==-1) {
+        break;
+      }
+    }
+    ifile.close();
+  }
+  else {
+    std::cerr << "Unable to open file\n";
+  }
+  clock_t te = clock();
+  float et = (te-tb)/(float)CLOCKS_PER_SEC;
+  std::cout << "Time Elapsed In Reading and Parsing File: "<< et << '\n';
+  std::cout << "Num of Lines: "<< num_lines << '\n';
+  std::cout << "Num of Tokens: "<< num_tokens << '\n';
+
+  std::map<int, int>::iterator d_it = distr.begin();
+  while(d_it != distr.end()){
+    std::cout<<d_it->first<<" : "<<d_it->second<<std::endl;
+    d_it++;
+  }
+
+  return keys;
+}
+
+
 void writeToFile(std::string outF, std::map<std::string, int> &keys, int min_sup){
 	// std::cout<<"Hello World";
 
   	std::ofstream ofile(outF, std::ios::out /*| std::ios::app*/);
     if (ofile.is_open()) {
-	
+
   	clock_t tb = clock();
     	int sum = 0;
     	int key_ctr = 0;
@@ -148,26 +143,5 @@ std::map<std::string, int> getFreqSets(std::map<std::string ,int> &keys, int min
 		it++;
 	}
 	return freqSet;
-			
-}
 
-/*
-  // Displaying Counts
-  tb = clock();
-  int sum = 0;
-  int key_ctr = 0;
-  std::map<std::string, int>::iterator it = keys.begin();
-  while (it != keys.end()) {
-    key_ctr = key_ctr + 1;
-    sum += it->second;
-    if (it->second>=min_sup) {
-      std::cout << it->first<<" : "<<it->second << '\n';
-    }
-    it++;
-  }
-  te = clock();
-  et = (te-tb)/(float)CLOCKS_PER_SEC;
-  std::cout << "Time Elapsed In Iteration Through Map: "<< et << '\n';
-  std::cout << "Sum of Cts: "<< sum << '\n';
-  std::cout << "Num Keys: "<< key_ctr << '\n';
-*/
+}
