@@ -12,7 +12,7 @@
 std::vector<std::string> parseLine(std::string line);
 
 // Read File First Time
-std::map<std::string, int> readFileFirst(std::string inF, int k);
+std::map<std::string, int> readFileFirst(std::string inF, int k, int&);
 
 // Write Output To File
 void writeToFile(std::string outF, std::map<std::string, int> &keys, int min_sup);

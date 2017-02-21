@@ -29,29 +29,10 @@ class Trie{
   void insertNode(trieNode*, std::string, int);
 
   // Displaying Nodes
-  void display();
+  void display(std::string, int);
+  void doPrint(std::string, trieNode*, std::vector<std::string>, int, int&, int);
   // Constructor
   Trie(std::string s, int p);
 };
 
-/*
-class Trie{
-  public:
-    std::string my_name;
-    int path_count;
-    Trie *next_trie;
-    std::map<std::string, Trie*> trie_Map;
-    // PUBLIC FUNCTIONS
-    // Access Functions
-    int getPathCount();
-    std::string getName();
-    // Insert Functinos
-    void insertTrie(Trie);
-    void insertTrie(std::string, int);
-    Trie* createTrie(std::string, int);
-
-    // Constructor
-    Trie(std::string s, int p);
-};
-*/
 #endif

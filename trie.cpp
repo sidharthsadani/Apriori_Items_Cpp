@@ -1,6 +1,7 @@
 // TRIE FUNCTIONS
 #include <string>
 #include <vector>
+//#include <queue>
 #include <map>
 #include <iostream>
 #include <fstream>
@@ -61,68 +62,59 @@ void Trie::insertNode(trieNode* parent, std::string name, int ct){
 }
 
 // Display Functions
-void Trie::display(){
+void Trie::display(std::string outF, int k){
+  int ct = 0;
   std::cout<<"My Size is: "<<this->Head->trie_Map.size()<<std::endl;
   trieNode* H = this->Head;
   std::cout<<"Name: "<<this->Head->my_name<<" Count: "<<this->Head->path_count<<std::endl;
 
-  std::map<std::string, trieNode*>::iterator it = H->trie_Map.begin();
-  while(it!=H->trie_Map.end()){
-    // std::cout << "Name: " << it->first << " Count : "<< it->second->path_count<< " Size : "<< it->second->trie_Map.size() << '\n';
+  std::vector<std::string> prevList;
+  int dispCt = 0;
 
-    trieNode* cNode = it->second;
-    // Iterating Through child
-    std::map<std::string, trieNode*>::iterator cit = cNode->trie_Map.begin();
-    while(cit!=cNode->trie_Map.end()){
-      std::cout <<"Parent Name: "<<cNode->my_name<< " Name: " << cit->first << " Count : "<< cit->second->path_count<< '\n';
+  // Empty the output file
+  std::ofstream oFile(outF, std::ios::out);
+  if (oFile.is_open()) {
+    oFile.close();
+  }
+
+  int min_sup = H->path_count;
+  doPrint(outF, H, prevList, k, dispCt, min_sup);
+
+  std::cout << "No of Items: "<< dispCt << '\n';
+}
+
+void Trie::doPrint(std::string outF, trieNode* TN, std::vector<std::string> prevList, int k, int &dCt, int min_sup){
+
+  if(TN->trie_Map.empty()&&k<=0){
+    //if(k<=0){
+    //if(TN->trie_Map.empty())
+    // std::cout << "HERE" << '\n';
+
+    std::ofstream oFile(outF, std::ios::app);
+    if (oFile.is_open()) {
+      std::vector<std::string>::iterator it3 = prevList.begin();
+      while(it3!=prevList.end()){
+        oFile<<*it3<<" ";
+        it3++;
+      }
+      //std::cout<<TN->my_name<<" : "<<TN->path_count<<std::endl;
+      oFile << "(" << TN->path_count <<")"<< '\n';
+      dCt++;
+
+      oFile.close();
+    }
+  }
+  else{
+    std::map<std::string, trieNode*>::iterator cit = TN->trie_Map.begin();
+    while(cit!=TN->trie_Map.end()){
+      prevList.push_back(cit->first);
+      doPrint(outF, cit->second, prevList, k-1, dCt, min_sup);
+      prevList.pop_back();
       cit++;
     }
-
-    it++;
-  }
-}
-
-/*
-// Accessibility Functions
-int Trie::getPathCount(){
-  return this->path_count;
-}
-
-std::string Trie::getName(){
-  return this->my_name;
-}
-
-// Creating and Destroying Nodes
-Trie *Trie::createTrie(std::string s, int i){
-  Trie *t2;
-  return t2;
-}
-
-// Constructor
-Trie::Trie(std::string s, int p){
-  this->my_name = s;
-  this->path_count = p;
-}
-
-// Insertion Functions
-void Trie::insertTrie(Trie iT){
-  // Insert an already existing trie
-  this->trie_Map.insert(std::make_pair(iT.my_name, &iT));
-}
-
-void Trie::insertTrie(std::string name, int value ){
-  // Check if Node Exists
-  try{
-    Trie *x = this->trie_Map.at(name);
-  }
-  catch(...){
-    // Node did not previously exist
-    // Create New Node
-    // Update It's name and value
-    // Add it's pointer to the hashmap
-    std::cout<<"Created Node: "<<std::endl;
+    if(k<=0&&TN->path_count>=min_sup){
+      dCt++;
+    }
   }
 
-  // If it does not, create it with initial count = freq
 }
-*/

@@ -4,6 +4,7 @@
 #include <cmath>
 #include <map>
 #include <vector>
+#include<queue>
 #include <ctime>
 
 #include "utils.h"
@@ -19,6 +20,7 @@
 
 int main(int argc, char const *argv[]){
   std::cout<<"Hello World"<<std::endl;
+  clock_t global_start = clock();
   // Check Input Parameters
   if (argc!=5) {
     std::cout << "Insufficient Arguements" << '\n';
@@ -30,63 +32,18 @@ int main(int argc, char const *argv[]){
   std::string inF = argv[3];
   std::string outF = argv[4];
 
-  /*// Experimenting with Trie
-  Trie t1;
-  t1.length = 5;
-  t1.width = 4;
-  t1.height = 6;
-  Trie *tp;
-  tp = &t1;
+  //out_s=3_k=4+.txt
+  outF = outF + "_s=" + std::to_string(min_sup) + "_k=" + std::to_string(k) + "+.txt";
 
-  std::cout<<tp->getVol()<<std::endl;
-  return 0;
-  */
-  /*
-  Trie t1("A", 5);
-  std::cout<<t1.getName()<<" : "<<t1.getPathCount()<<std::endl;
-  Trie t2("B", 6);
-  t1.next_trie = &t2;
-  std::cout<<t1.next_trie->getName()<<" : "<<t1.next_trie->getPathCount()<<std::endl;
-  Trie t3("C", 7);
-  t2.insertTrie(t3);
-  std::cout<<t2.trie_Map["C"]->getName()<<" : "<<t2.trie_Map["C"]->getPathCount()<<std::endl;
-  Trie t4("D", 8);
-  int ctr = 1;
-  while(ctr>0){
-    // Do stuff
-    Trie t4("D", 8);
-    t2.insertTrie(t4);
-    //t2.insertTrie("D", 8);
-    ctr = ctr - 1;
-  }
-  std::cout<<t2.trie_Map["D"]->getName()<<" : "<<t2.trie_Map["D"]->getPathCount()<<std::endl;
-  return 0;
-  */
-
-
-  /*
-  // Creating New Hash Trie
-  Trie rootTrie("ROOT", -1);
-  std::cout<<"Root Trie Created"<<std::endl;
-  std::cout<<rootTrie.Head->my_name<<" : "<<rootTrie.Head->path_count<<std::endl;
-  std::cout<<"Inserting Node"<<std::endl;
-  rootTrie.insertNode("A",5);
-  std::cout<<rootTrie.Head->trie_Map["A"]->my_name<<" : "<<rootTrie.Head->trie_Map["A"]->path_count<<std::endl;
-
-  trieNode* x = rootTrie.Head->trie_Map["A"];
-  std::cout<<"Inserting Node"<<std::endl;
-  rootTrie.insertNode(x, "B", 6);
-  std::cout<<x->trie_Map["B"]->my_name<<" : "<<x->trie_Map["B"]->path_count<<std::endl;
-
-  return 0;
-
-  */
+  int maxLen = 0;
 
   //READ INPUT FILE FIRST TIME
-  std::map<std::string, int> keys = readFileFirst(inF, k);
-
+  std::map<std::string, int> keys = readFileFirst(inF, k, maxLen);
+  std::cout << "Max Line Len" <<maxLen<< '\n';
   // GET FREQ SETS FROM ALL SETS
   std::map<std::string, int> freqSet = getFreqSets(keys, min_sup);
+
+  std::cout << keys[""] << '\n';
 
   // Create Trie
   Trie rootTrie("ROOT", min_sup);
@@ -102,29 +59,37 @@ int main(int argc, char const *argv[]){
   // rootTrie.display();
   // int level = 2;
 
-  for(int level=2;level<=2;level++){
-    genCand(inF, RT, level, k);
-    std::cout << "Trie After L2 Cand Gen" << '\n';
+  for(int level=2;level<=maxLen;level++){
+    clock_t tb = clock();
+    int num_inserted = 0;
+    genCand(inF, RT, level, k, num_inserted);
+    std::cout << "Trie After Level: "<<level<<" Cand Gen" << '\n';
+    std::cout << "NUM INSERTED: " <<num_inserted<< '\n';
     // rootTrie.display();
-    candPrune(RT, level);
-    std::cout << "Trie After L2 Cand Prune" << '\n';
+    candPrune(RT, level, k);
+    std::cout << "Trie After Level: "<<level<<" Cand Prune" << '\n';
+
+    clock_t te = clock();
+    float et = (te-tb)/(float)CLOCKS_PER_SEC;
+    std::cout << "Time Elapsed In Level: "<<level<<" : "<< et << '\n';
+
+    std::cout << '\n';
+    //TODO: Requires Update
+    if(num_inserted==0){
+      break;
+    }
   }
 
-  rootTrie.display();
+  std::cout << "Results: " << '\n';
+  // Display some details on terminal, and print the results into the file
+  rootTrie.display(outF, k);
 
-
-  return 0;
-
-
-  //
-  // DO APRIORI
-  // for(int i=0; i<k; i++){
-    // Candidate Generation
-    // Pruning
-  // }
+  clock_t global_end = clock();
+  float global_et = (global_end-global_start)/(float)CLOCKS_PER_SEC;
+  std::cout << std::endl << "Total Time Elapsed: "<< global_et << " seconds"<< '\n';
 
 
   // WRITE OUTPUT TO FILE
-  writeToFile(outF, freqSet, min_sup);
+  // writeToFile(outF, freqSet, min_sup);
   return 0;
 }

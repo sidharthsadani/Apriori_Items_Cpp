@@ -29,7 +29,7 @@ std::vector<std::string> parseLine(std::string line){
 }
 
 // READ FILE FIRST TIME
-std::map<std::string, int> readFileFirst(std::string inF, int k){
+std::map<std::string, int> readFileFirst(std::string inF, int k, int &maxLen){
   std::map<std::string, int> keys;
   std::map<int, int> distr;
 
@@ -54,6 +54,10 @@ std::map<std::string, int> readFileFirst(std::string inF, int k){
         continue;
       }
 
+      if(no_items>maxLen){
+        maxLen = no_items;
+      }
+
       try{
         int x = distr.at(no_items);
         distr[no_items]++;
@@ -76,6 +80,7 @@ std::map<std::string, int> readFileFirst(std::string inF, int k){
         num_tokens++;
         Items.pop_back();
       }
+
       count++;
       if (count==-1) {
         break;
@@ -137,7 +142,7 @@ std::map<std::string, int> getFreqSets(std::map<std::string ,int> &keys, int min
 	std::map<std::string, int> freqSet;
 	std::map<std::string, int>::iterator it = keys.begin();
 	while(it != keys.end()){
-		if(it->second > min_sup){
+		if(it->second >= min_sup){
 			freqSet.insert(std::make_pair(it->first, it->second));
 		}
 		it++;

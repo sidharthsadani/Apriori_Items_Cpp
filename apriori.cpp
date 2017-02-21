@@ -7,7 +7,7 @@
 #include "trie.h"
 #include "apriori.h"
 
-void genCand(std::string inF, Trie* RT, int level, int k){
+void genCand(std::string inF, Trie* RT, int level, int k, int &num_ins){
   std::cout<<"Database File: "<<inF<<std::endl;
   std::cout<<"Root Trie Details: "<<std::endl;
   std::cout << "Name: " << RT->Head->my_name << '\n';
@@ -17,25 +17,25 @@ void genCand(std::string inF, Trie* RT, int level, int k){
   trieNode* HNode = RT->Head;
 
   int line_ct = 0;
+
   std::ifstream iFile(inF, std::ios::in);
   if (iFile.is_open()) {
     std::string line;
+    // Read Each Line From File
     while (std::getline(iFile, line)) {
       line_ct++;
-      std::cout << line_ct<<" : "<< line << '\n';
+      // std::cout << line_ct<<" : "<< line << '\n';
       std::vector<std::string> Items;
       Items = parseLine(line);
+      sort(Items.begin(), Items.end());
       int no_items = Items.size();
-
+      // If line contains less than k items, it cannot contribute to K+ itemsets
       if(no_items<k){
         continue;
       }
-      // std::cout<<"Running"<<std::endl;
-      //std::vector<std::string>::iterator it = Items.begin();
 
-      // std::cout<<"Level: "<<level<<std::endl;
-      candCheck(RT, HNode, HNode, Items, level);
-      // std::cout << "On The Other Side" << '\n';
+      // if no items > k, start building candidates
+      candCheck(RT, HNode, HNode, Items, level, num_ins);
 
     }
     iFile.close();
@@ -45,18 +45,7 @@ void genCand(std::string inF, Trie* RT, int level, int k){
   }
 }
 
-void candCheck(Trie* RT, trieNode* TN, trieNode* parN, std::vector<std::string> iList, int level){
-  /*
-  std::cout << "Min_Sup: " << RT->Head->my_name<< '\n';
-  std::cout << "Name: " << TN->my_name<< '\n';
-  std::cout << "Name: " << parN->my_name<< '\n';
-  std::cout<<"Level: "<<level<<std::endl;
-  std::vector<std::string>::iterator itx = iList.begin();
-  while(itx!=iList.end()){
-    std::cout << "Element: "<<*itx<< '\n';
-    itx++;
-  }
-  */
+void candCheck(Trie* RT, trieNode* TN, trieNode* parN, std::vector<std::string> iList, int level, int &num_insert){
 
   if(level==1){
     //Edge case updates
@@ -67,6 +56,7 @@ void candCheck(Trie* RT, trieNode* TN, trieNode* parN, std::vector<std::string> 
       try{
         // if child of parent, append to child (increase ctr by 1 or create Node)
         trieNode* checkNode = parN->trie_Map.at(*it3);
+        num_insert = num_insert + 1;
         try{
           TN->trie_Map.at(*it3)->path_count++;
         }
@@ -82,7 +72,6 @@ void candCheck(Trie* RT, trieNode* TN, trieNode* parN, std::vector<std::string> 
       }
       it3++;
     }
-    // std::cout<<"Have Fun"<<std::endl;
   }
   else{
     std::vector<std::string>::iterator it2 = iList.begin();
@@ -90,11 +79,12 @@ void candCheck(Trie* RT, trieNode* TN, trieNode* parN, std::vector<std::string> 
     // std::cout << "List Size: "<<iList.size() << '\n';
     while(it2!=iList.end()){
       // add early termination if itemNo+level-1<no of left elements
+
+
       if(start_item + level-1 > iList.size()){
         // Not enough search items left to find itemset of level = level
         break;
       }
-
       try{
         trieNode* nxtNode = TN->trie_Map.at(*it2);
         // Get New Vector fron it2++ to end
@@ -106,7 +96,7 @@ void candCheck(Trie* RT, trieNode* TN, trieNode* parN, std::vector<std::string> 
           it3++;
         }
         if(tList.size()>0){
-            candCheck(RT, nxtNode, TN, tList, level-1);
+            candCheck(RT, nxtNode, TN, tList, level-1, num_insert);
         }
       }
       catch(...){
@@ -118,14 +108,63 @@ void candCheck(Trie* RT, trieNode* TN, trieNode* parN, std::vector<std::string> 
   }
 }
 
-void candPrune(Trie* RT, int level){
+
+
+void candPrune(Trie* RT, int level, int k){
   std::cout<<"Starting Pruning"<<std::endl;
   trieNode* headN = RT->Head;
   int min_sup = headN->path_count;
-  doPrune(RT, headN, level, min_sup);
+  int toplevel = level;
+  doPrune(RT, headN, level, min_sup, k, toplevel);
 }
 
-void doPrune(Trie* RT, trieNode* TN, int level, int min_sup){
+void doPrune(Trie* RT, trieNode* TN, int level, int min_sup, int k, int toplevel){
+
+  //std::cout << "Do Prune" << '\n';
+  // First Remove all leaves at higher height
+
+
+  if(toplevel<=k&&level>1){
+    //std::cout << "Yes 1" << '\n';
+    std::map<std::string, trieNode*>::iterator k_it = TN->trie_Map.begin();
+    while(k_it!=TN->trie_Map.end()){
+      if(k_it->second->trie_Map.empty()){
+        // Delete Node k_it->second
+        trieNode* dNode = k_it->second;
+        std::string dName = k_it->first;
+        k_it++;
+        RT->destroyNode(dNode);
+        TN->trie_Map.erase(dName);
+      }
+      else{
+        k_it++;
+      }
+    }
+  }
+
+
+  // std::cout << "Here 1" << '\n';
+
+  if(toplevel>k&&level>toplevel-k+1){
+    std::map<std::string, trieNode*>::iterator k_it = TN->trie_Map.begin();
+    while(k_it!=TN->trie_Map.end()){
+      if(k_it->second->trie_Map.empty()){
+        // Delete Node k_it
+        trieNode* dNode = k_it->second;
+        std::string dName = k_it->first;
+        k_it++;
+        RT->destroyNode(dNode);
+        TN->trie_Map.erase(dName);
+      }
+      else{
+        k_it++;
+      }
+    }
+  }
+
+  // std::cout << "Here 2" << '\n';
+
+
   if(level==1){
     std::map<std::string, trieNode*>::iterator cit = TN->trie_Map.begin();
     while(cit!=TN->trie_Map.end()){
@@ -149,53 +188,8 @@ void doPrune(Trie* RT, trieNode* TN, int level, int min_sup){
   else{
     std::map<std::string, trieNode*>::iterator cit = TN->trie_Map.begin();
     while(cit!=TN->trie_Map.end()){
-      doPrune(RT, cit->second, level-1, min_sup);
+      doPrune(RT, cit->second, level-1, min_sup, k, toplevel);
       cit++;
     }
   }
 }
-
-/*
-int start_item=1;
-while(it!=Items.end()){
-  if(start_item+level-1>no_items){
-    // Not enough elements left in transaction to form LEVEL = level itemset
-    break;
-  }
-
-  // Check if this item is an L1 freq Item
-  trieNode* nxtNode;
-  try{
-    trieNode* nxtNode = HNode->trie_Map.at(*it);
-  }
-  catch(...){
-    ++it;
-    ++start_item;
-    continue;
-  }
-
-  // Iterator over the items to the left of the selected item
-  std::vector<std::string>::iterator nx_it = it;
-  while(nx_it!=Items.end()){
-    nx_it = it;
-    nx_it++;
-
-  }
-  nx_it++;
-  //break;
-
-  //nxtNode is already at level 1
-  // Now go down from level 2 to level = level-1
-  for(int i=2; i<=level-1;i++){
-    try{
-      nxtNode = nxtNode->trie_Map.at(*nx_it);
-    }
-    catch(...){
-      continue;
-    }
-  }
-
-  ++it;
-  ++start_item;
-
-  */
