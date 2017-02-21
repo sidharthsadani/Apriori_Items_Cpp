@@ -94,7 +94,7 @@ std::map<std::string, int> readFileFirst(std::string inF, int k){
 
   std::map<int, int>::iterator d_it = distr.begin();
   while(d_it != distr.end()){
-    std::cout<<d_it->first<<" : "<<d_it->second<<std::endl;
+    // std::cout<<d_it->first<<" : "<<d_it->second<<std::endl;
     d_it++;
   }
 

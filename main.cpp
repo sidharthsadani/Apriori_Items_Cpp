@@ -41,6 +41,7 @@ int main(int argc, char const *argv[]){
   std::cout<<tp->getVol()<<std::endl;
   return 0;
   */
+  /*
   Trie t1("A", 5);
   std::cout<<t1.getName()<<" : "<<t1.getPathCount()<<std::endl;
   Trie t2("B", 6);
@@ -60,6 +61,26 @@ int main(int argc, char const *argv[]){
   }
   std::cout<<t2.trie_Map["D"]->getName()<<" : "<<t2.trie_Map["D"]->getPathCount()<<std::endl;
   return 0;
+  */
+
+
+  /*
+  // Creating New Hash Trie
+  Trie rootTrie("ROOT", -1);
+  std::cout<<"Root Trie Created"<<std::endl;
+  std::cout<<rootTrie.Head->my_name<<" : "<<rootTrie.Head->path_count<<std::endl;
+  std::cout<<"Inserting Node"<<std::endl;
+  rootTrie.insertNode("A",5);
+  std::cout<<rootTrie.Head->trie_Map["A"]->my_name<<" : "<<rootTrie.Head->trie_Map["A"]->path_count<<std::endl;
+
+  trieNode* x = rootTrie.Head->trie_Map["A"];
+  std::cout<<"Inserting Node"<<std::endl;
+  rootTrie.insertNode(x, "B", 6);
+  std::cout<<x->trie_Map["B"]->my_name<<" : "<<x->trie_Map["B"]->path_count<<std::endl;
+
+  return 0;
+
+  */
 
   //READ INPUT FILE FIRST TIME
   std::map<std::string, int> keys = readFileFirst(inF, k);
@@ -67,11 +88,32 @@ int main(int argc, char const *argv[]){
   // GET FREQ SETS FROM ALL SETS
   std::map<std::string, int> freqSet = getFreqSets(keys, min_sup);
 
-  // Extract Only Keys
-  // Create root Trie
-  Trie rootTrie("ROOT", -1);
-  // Insert Frequent Itemsets To Root Trie
+  // Create Trie
+  Trie rootTrie("ROOT", min_sup);
+  Trie* RT = &rootTrie;
+  std::map<std::string, int>::iterator it = freqSet.begin();
+  while(it!=freqSet.end()){
+    // std::cout<<"Inserting Node: "<<it->first<<" : "<<it->second<<std::endl;
+    rootTrie.insertNode(it->first, it->second);
+    it++;
+  }
 
+  std::cout << "Trie After L1" << '\n';
+  // rootTrie.display();
+  // int level = 2;
+
+  for(int level=2;level<=2;level++){
+    genCand(inF, RT, level, k);
+    std::cout << "Trie After L2 Cand Gen" << '\n';
+    // rootTrie.display();
+    candPrune(RT, level);
+    std::cout << "Trie After L2 Cand Prune" << '\n';
+  }
+
+  rootTrie.display();
+
+
+  return 0;
 
 
   //
