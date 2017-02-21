@@ -1,4 +1,14 @@
 // TRIE FUNCTIONS
+
+/*
+    **********************************************************************************
+    Author:   Sidharth SADANI
+    Date:     2/20/17
+    File:     trie.cpp
+    Comments: Functions to operate the trie + hashmap node pointer data structure
+    **********************************************************************************
+*/
+
 #include <string>
 #include <vector>
 //#include <queue>

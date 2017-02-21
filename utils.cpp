@@ -1,3 +1,12 @@
+/*
+    **********************************************************************************
+    Author:   Sidharth SADANI
+    Date:     2/20/17
+    File:     utils.cpp
+    Comments: Utility functions of this Module
+    **********************************************************************************
+*/
+
 #include <string>
 #include <vector>
 #include <map>

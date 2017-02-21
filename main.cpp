@@ -1,3 +1,12 @@
+/*
+    **********************************************************************************
+    Author:   Sidharth SADANI
+    Date:     2/20/17
+    File:     main.cpp
+    Comments: Main Function To Generate Freq Itemsets.
+    **********************************************************************************
+*/
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -11,12 +20,6 @@
 #include "apriori.h"
 #include "trie.h"
 //Compilation command g++ -pipe -O2 -std=c++14 <filename > -lm
-
-// // Function Definitions
-// std::vector<std::string> parseLine(std::string);
-// Write Output To File
-// TODO: Enforce pass by reference
-// void writeToFile(std::string, std::map<std::string, int> &, int);
 
 int main(int argc, char const *argv[]){
   std::cout<<"Hello World"<<std::endl;
@@ -81,7 +84,7 @@ int main(int argc, char const *argv[]){
   }
 
   std::cout << "Results: " << '\n';
-  // Display some details on terminal, and print the results into the file
+  // Display some details on terminal, and write the results into the file
   rootTrie.display(outF, k);
 
   clock_t global_end = clock();

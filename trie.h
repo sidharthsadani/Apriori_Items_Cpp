@@ -1,5 +1,14 @@
 // Header file for Trie class
-
+/*
+    **********************************************************************************
+    Author:   Sidharth SADANI
+    Date:     2/20/17
+    File:     trie.h
+    Comments: Header file for trie.cpp // Modified trie with Nodes containing hashmap
+            : to pointers to children Nodes
+    **********************************************************************************
+*/
+// This is the data structure utilised to generate itemsets. Trie tree with trieNodes, pointers to children hashed.
 //Header guards
 
 #ifndef TRIE_H

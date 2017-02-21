@@ -1,3 +1,11 @@
+/*
+    **********************************************************************************
+    Author:   Sidharth SADANI
+    Date:     2/20/17
+    File:     Apriori.cpp
+    Comments: Apriori Candidate Generation and Pruning
+    **********************************************************************************
+*/
 #include <iostream>
 #include <fstream>
 #include <string>
