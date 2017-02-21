@@ -113,7 +113,19 @@ void Trie::doPrint(std::string outF, trieNode* TN, std::vector<std::string> prev
       cit++;
     }
     if(k<=0&&TN->path_count>=min_sup){
-      dCt++;
+      std::ofstream oFile(outF, std::ios::app);
+      if (oFile.is_open()) {
+        std::vector<std::string>::iterator it3 = prevList.begin();
+        while(it3!=prevList.end()){
+          oFile<<*it3<<" ";
+          it3++;
+        }
+        //std::cout<<TN->my_name<<" : "<<TN->path_count<<std::endl;
+        oFile << "(" << TN->path_count <<")"<< '\n';
+        dCt++;
+
+        oFile.close();
+      }
     }
   }
 
